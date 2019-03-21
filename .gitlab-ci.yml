@@ -1,0 +1,56 @@
+image: node:10
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: 'build'
+  script:
+    - apt update
+    - apt install -y curl
+    - apt install -y nodejs
+    - npm cache clean -f
+    - npm install -y npm@latest -g
+    - npm install -g @angular/cli
+    - nodejs -v
+    - npm -v
+    - cd /builds/your-group-name/angular-gitlab-ci-cd-example
+    - ls -la -F
+    - rm package-lock.json
+    - npm install
+    - ng build --prod
+  cache:
+    paths:
+      - /builds/your-group-name/angular-gitlab-ci-cd-example/node_modules/
+      - /builds/your-group-name/angular-gitlab-ci-cd-example/functions/node_modules/
+  artifacts:
+    when: on_success
+    name: '$CI_JOB_NAME-$CI_COMMIT_REF_NAME'
+    paths:
+      - /builds/your-group-name/angular-gitlab-ci-cd-example/dist/
+  only:
+    - master
+
+deploy:
+  stage: 'deploy'
+  environment:
+    name: production
+    url: https://transitbase.com
+  script:
+    - apt update
+    - apt install -y software-properties-common
+    - apt install -y python-dev
+    - apt install -y python-pip
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set region us-east-1
+    - ls -la -F
+    - mv dist/angular-gitlab-ci-cd-example/appspec.yml dist/
+    - cd dist
+    - ls -al -F
+    - cd ..
+    - aws deploy push --application-name TransitBase --s3-location $AWS_S3_LOCATION --ignore-hidden-files --source dist
+  only:
+    - master
