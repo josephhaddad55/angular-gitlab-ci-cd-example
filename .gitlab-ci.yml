@@ -31,7 +31,6 @@ deploy:
   stage: 'deploy'
   environment:
     name: production
-    url: https://transitbase.com
   script:
     - apt update
     - apt install -y software-properties-common
