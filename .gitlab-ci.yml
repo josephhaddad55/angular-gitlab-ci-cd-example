@@ -8,28 +8,23 @@ build:
   stage: 'build'
   script:
     - apt update
-    - apt install -y curl
-    - apt install -y nodejs
-    - npm cache clean -f
-    - npm install -y npm@latest -g
-    - npm install -g @angular/cli
+    - apt-get install -y nodejs
+    - npm install -y npm@6.11.0
     - nodejs -v
     - npm -v
-    - cd /builds/your-group-name/angular-gitlab-ci-cd-example
     - ls -la -F
-    - rm package-lock.json
     - npm install
-    - ng build --prod
+    - npx ng build --prod
   cache:
     paths:
-      - /builds/your-group-name/angular-gitlab-ci-cd-example/node_modules/
-      - /builds/your-group-name/angular-gitlab-ci-cd-example/functions/node_modules/
+      - node_modules/
   artifacts:
     when: on_success
     name: '$CI_JOB_NAME-$CI_COMMIT_REF_NAME'
     paths:
-      - /builds/your-group-name/angular-gitlab-ci-cd-example/dist/
+      - dist/angular-gitlab-ci-cd-example/
   only:
+    - dev
     - master
 
 deploy:
@@ -51,6 +46,6 @@ deploy:
     - cd dist
     - ls -al -F
     - cd ..
-    - aws deploy push --application-name TransitBase --s3-location $AWS_S3_LOCATION --ignore-hidden-files --source dist
+    - aws deploy push --application-name angular-gitlab-ci-cd-example --s3-location $AWS_S3_LOCATION --ignore-hidden-files --source dist
   only:
     - master
