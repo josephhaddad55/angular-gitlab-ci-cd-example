@@ -13,7 +13,7 @@ build:
     - nodejs -v
     - npm -v
     - ls -la -F
-    - npm install
+    - npm ci
     - npx ng build --prod
   cache:
     paths:
